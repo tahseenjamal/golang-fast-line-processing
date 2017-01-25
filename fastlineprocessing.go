@@ -3,7 +3,6 @@
 package main
 
 import (
-	/*"bytes"*/
 	"fmt"
 	"io"
 	"os"
@@ -12,10 +11,16 @@ import (
 
 func main() {
 
-	filehandle, err := os.Open(os.Args[1])
+	//reading file name from the command line argument
+	filename := os.Args[1]
 
+	//creating file handle
+	filehandle, err := os.Open(filename)
+
+	//close file handle before exiting main()
 	defer filehandle.Close()
 
+	//enter for processing only if filehandle creation for read successful
 	if err == nil {
 
 		//initialise partial line variable
@@ -77,10 +82,10 @@ func main() {
 						fmt.Println(buffer_line_array[index])
 					}
 
+					//enter if buffer read is of 1 cell only, which means a file with single line
 				} else {
 
 					//if only 1 line then we store that partial line in partial variable, ready to be added to the next buffer read
-
 					partial_line = buffer_line_array[0]
 				}
 
