@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func line_print(line string) {
+func line_processing(line string) {
 
 	//print or do any processing of the line that has been read
 	fmt.Println(line)
@@ -53,8 +53,9 @@ func main() {
 
 				//If partial line from previous read is not null, print it too before exiting
 				if partial_line != "" {
-					//fmt.Println(partial_line)
-					line_print(partial_line)
+
+					//process the line
+					line_processing(partial_line)
 
 				}
 
@@ -89,7 +90,7 @@ func main() {
 					for index := 0; index <= len(buffer_line_array)-2; index++ {
 
 						//fmt.Println(buffer_line_array[index])
-						line_print(buffer_line_array[index])
+						line_processing(buffer_line_array[index])
 					}
 
 					//enter if buffer read is of 1 cell only, which means a file with single line
@@ -106,7 +107,7 @@ func main() {
 
 					//print the complete lines aggregated from the current read buffer data.
 					//fmt.Println(buffer_line_array[index])
-					line_print(buffer_line_array[index])
+					line_processing(buffer_line_array[index])
 				}
 
 			}
