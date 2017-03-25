@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +17,12 @@ func line_processing(line string) {
 }
 
 func main() {
+
+	if len(os.Args) < 3 {
+
+		fmt.Printf("\nError: Please pass two parameters: filename and buffer size\n\n")
+		os.Exit(0)
+	}
 
 	//reading file name from the command line argument
 	filename := os.Args[1]
@@ -31,84 +37,87 @@ func main() {
 	if err == nil {
 
 		//initialise partial line variable
+
 		partial_line := ""
 
 		//buffer size of buffer data
-		buffer_size := 1024
+		buffer_size, _ := strconv.Atoi(os.Args[2])
 
 		//initialize buffer data and reuse it by trimming method
 		buffer_data := make([]byte, buffer_size)
 
 		for {
 
-			//read buffer data
-			size_received, err := filehandle.Read(buffer_data)
+			//get received data size
+			size_received, _ := filehandle.Read(buffer_data)
 
-			//trim buffer to the size of data received
+			//trim the buffer to data size
 			buffer_data = buffer_data[0:size_received]
 
-			//Plan exit if EOF or size received 0
-			//I think I should make err != nill as already am checing size. err should be use to catch for any other possible errors
-			if err == io.EOF || size_received == 0 {
+			//if received size of data is not 0
+			if size_received != 0 {
 
-				//If partial line from previous read is not null, print it too before exiting
-				if partial_line != "" {
+				//add to the buffer previous partial lines, which would have now their remaining part in this array
+				buffer_data = []byte(partial_line + string(buffer_data))
 
-					//process the line
-					line_processing(partial_line)
+				//count the number of sentence using newline
+				array_count := len(strings.Split(string(buffer_data), "\n"))
 
-				}
+				//if the last character in the byte array is not newline, it means last line is partial
+				if buffer_data[size_received-1] != '\n' {
 
-				//exit loop and this results in exit of program as well
-				break
-			}
+					//get the lines as array and note that the last line is partial
+					lines := strings.Split(string(buffer_data), "\n")
 
-			//Add any previous partial byte to this []byte so that when we split, the inital part of has previous last partial data
-			buffer_data = []byte(partial_line + string(buffer_data))
+					//depending on the buffer size initialised, we can have buffer holding the very first line also partially or fully
+					//if at least the buffer size was big enough to hold the first line then
+					//process all lines except for the last line
 
-			//split the []byte basis \n
+					if array_count > 0 {
 
-			buffer_line_array := strings.Split(string(buffer_data), "\n")
-			/*buffer_line_array[0] = partial + b2[0]*/
+						//get the partial line
+						partial_line = lines[array_count-1]
 
-			//flush partial first
-			partial_line = ""
+						//trim out the partial line so you are left with only complete lines
+						lines = lines[0 : array_count-1]
 
-			//if array string is having length that does not match newline count, then it means we have partial line in the last cell
-			if len(buffer_line_array) != strings.Count(string(buffer_data), "\n") {
+						for _, v := range lines {
 
-				//Check if we have only 1 cell or more than that
-				if len(buffer_line_array) > 1 {
+							//process the complete lines
+							line_processing(v)
 
-					//if more than 1 cell, then get the partial line in partial variable so that it can be added in the beginning to the next buffer read
-					totalsize := len(buffer_line_array)
+						}
 
-					//partial line is in the last cell. Note cells start from 0 to totalsize-1, where totalsize is the number of cells
-					partial_line = buffer_line_array[totalsize-1]
+					} else {
 
-					//print all except for the partial line
-					for index := 0; index <= len(buffer_line_array)-2; index++ {
+						//if the buffer size chosen is too small to even take up first line then, it all starts with partial line only
+						//and keep adding to partial line until the partial line becomes full line
+						partial_line = string(buffer_data)
 
-						//fmt.Println(buffer_line_array[index])
-						line_processing(buffer_line_array[index])
 					}
 
-					//enter if buffer read is of 1 cell only, which means a file with single line
 				} else {
 
-					//if only 1 line then we store that partial line in partial variable, ready to be added to the next buffer read
-					partial_line = buffer_line_array[0]
+					//so in case the last character is newline, it means we have all complete lines in the array
+					//split array basis newline
+					lines := strings.Split(string(buffer_data), "\n")
+
+					//now as last character is newline split basis newline would result in 1 extra array
+					//this extra array has to be trimmed out
+					lines = lines[0 : len(lines)-1]
+
+					for _, v := range lines {
+
+						line_processing(v)
+
+					}
+
 				}
 
-				//this condition when cells match newline, means no partial data
+				//received data is 0 so break out
 			} else {
 
-				for index := 0; index < len(buffer_line_array)-1; index++ {
-
-					//print the complete lines aggregated from the current read buffer data.
-					//fmt.Println(buffer_line_array[index])
-					line_processing(buffer_line_array[index])
-				}
+				break
 
 			}
 
