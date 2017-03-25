@@ -114,7 +114,7 @@ func main() {
 
 				}
 
-				//received data is 0 so break out
+				//received data size is 0 so break out, either file ended or start with nothing in file as the file was empty
 			} else {
 
 				break
