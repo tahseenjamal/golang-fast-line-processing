@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+func line_print(line string) {
+
+	//print or do any processing of the line that has been read
+	fmt.Println(line)
+
+}
+
 func main() {
 
 	//reading file name from the command line argument
@@ -46,7 +53,9 @@ func main() {
 
 				//If partial line from previous read is not null, print it too before exiting
 				if partial_line != "" {
-					fmt.Println(partial_line)
+					//fmt.Println(partial_line)
+					line_print(partial_line)
+
 				}
 
 				//exit loop and this results in exit of program as well
@@ -79,7 +88,8 @@ func main() {
 					//print all except for the partial line
 					for index := 0; index <= len(buffer_line_array)-2; index++ {
 
-						fmt.Println(buffer_line_array[index])
+						//fmt.Println(buffer_line_array[index])
+						line_print(buffer_line_array[index])
 					}
 
 					//enter if buffer read is of 1 cell only, which means a file with single line
@@ -95,7 +105,8 @@ func main() {
 				for index := 0; index < len(buffer_line_array)-1; index++ {
 
 					//print the complete lines aggregated from the current read buffer data.
-					fmt.Println(buffer_line_array[index])
+					//fmt.Println(buffer_line_array[index])
+					line_print(buffer_line_array[index])
 				}
 
 			}
